@@ -8,35 +8,29 @@ namespace AdventOfCode
 {
     class Program 
     {
-        private static int gridWidth;
-        private static int gridHeight;
-        private static Point startingPoint;
-        private static char[,] grid;
-        private static HashSet<Point> obstaclesPoint = new();
-        private static List<Point> availablePositions = new();
-        public static int obstacleLimit = 0;
+        
         static  void Main(string[] args)
         {
-            List<int> Sums = new();
-            int sumOfTrue = 0;
-            List<List<int>> operations = new();
+            List<long> Sums = new();
+            long sumOfTrue = 0;
+            List<List<long>> operations = new();
             var fileInput = "C://Users//titas//Desktop//AdventOfCode//AdventOfCode//input.txt";
             foreach (var line in File.ReadAllLines(fileInput))
             {
-                List<int> currentOperations = new();
+                List<long> currentOperations = new();
                 var parts = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                 for (int x = 0; x < parts.Length; x++)
                 {
                     if (parts[x].Contains(":")) 
                     {
                         parts[x] = parts[x].Replace(":", "");
-                        if (int.TryParse(parts[x], out var sum))
+                        if (long.TryParse(parts[x], out var sum))
                         {
                             Sums.Add(sum);
                         }
                         
                     }
-                    else if (int.TryParse(parts[x], out var number))
+                    else if (long.TryParse(parts[x], out var number))
                     {
                         currentOperations.Add(number);
                         
@@ -52,33 +46,22 @@ namespace AdventOfCode
             }
             for (int i = 0; i < operations.Count; i++)
             {
-
                
-                
-                    var sum = Sums[i];
-                 
+                    long sum = Sums[i];
+                    var numbers = operations[i]; // Start with the first number
 
-                    for (int x = 0; x < operations[i].Count; x++)
-                    {
-                        for (int y = x + 1; y < operations[i].Count; y++)
-                        {
-                            var operationX = operations[i][x];
-                            var operationY = operations[i][y];
+                Console.WriteLine($"Target: {sum}, Numbers: {string.Join(", ", numbers)}");
 
+                if (FindCombination(numbers, sum, 0, numbers[0]))
+                {
+                    Console.WriteLine($"A valid combination found for {sum}!");
+                    sumOfTrue += sum;
+                }
+                else
+                {
+                    Console.WriteLine($"No valid combination found for {sum}.");
+                }
 
-                            var combo1 = operationX * operationY;
-                            var combo2 = operationX + operationY;
-
-
-                            if (sum == combo1 || sum == combo2)
-                            {
-                                Console.WriteLine($"The operations match the sum: {sum} using operations {operationX} and {operationY}");
-                                sumOfTrue += sum;
-                            }
-                        }
-                    }
-                
-                
             }
             Console.WriteLine(sumOfTrue);
 
@@ -88,6 +71,29 @@ namespace AdventOfCode
 
 
         }
-       
+        public static bool FindCombination(List<long> numbers, long target, int index, long currentResult)
+        {
+
+            if (index == numbers.Count - 1)
+                return currentResult == target;
+
+            // Try addition
+            if (FindCombination(numbers, target, index + 1, currentResult + numbers[index + 1]))
+                return true;
+
+            // Try multiplication
+            if (FindCombination(numbers, target, index + 1, currentResult * numbers[index + 1]))
+                return true;
+
+            // Try concatenation
+            long concatenated = long.Parse(currentResult.ToString() + numbers[index + 1].ToString());
+            if (FindCombination(numbers, target, index + 1, concatenated))
+                return true;
+            return false;
+
+        }
+            
+
+        }
+
     }
-}
