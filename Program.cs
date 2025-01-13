@@ -6,94 +6,91 @@ using System.Linq;
 
 namespace AdventOfCode
 {
-    class Program 
+    class Program
     {
-        
-        static  void Main(string[] args)
+
+        static void Main(string[] args)
         {
-            List<long> Sums = new();
-            long sumOfTrue = 0;
-            List<List<long>> operations = new();
+            int gridWidth = 0;
+            int gridHeight = 0;
+            char[,] grid;
+            HashSet<Point> antinode= new HashSet<Point>();
+            HashSet<Point> frequency = new HashSet<Point>();
+            List<string> lines = new List<string>();
+            List<(int dRow, int dCol)> directions = new List<(int dRow, int dCol)>
+            {
+                (-1, 1),  
+                (-1, 0),  
+                (-1, -1), 
+                (0, 1),   
+                (0, -1),  
+                (1, -1),  
+                (1, 0),   
+                (1, 1),   
+            };
+
             var fileInput = "C://Users//titas//Desktop//AdventOfCode//AdventOfCode//input.txt";
             foreach (var line in File.ReadAllLines(fileInput))
             {
-                List<long> currentOperations = new();
-                var parts = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                for (int x = 0; x < parts.Length; x++)
+
+                gridWidth = line.Length;
+                gridHeight++;
+                lines.Add(line);
+                Console.WriteLine(line);    
+            }
+
+                grid = new char[gridWidth, gridHeight];
+                for (int x = 0; x < gridWidth; x++)
                 {
-                    if (parts[x].Contains(":")) 
+                    for (int y = 0; y < gridHeight; y++)
                     {
-                        parts[x] = parts[x].Replace(":", "");
-                        if (long.TryParse(parts[x], out var sum))
+                        grid[x, y] = lines[y][x];
+                        if (grid[x, y] == '#')
                         {
-                            Sums.Add(sum);
+                            antinode.Add(new Point(x,y));
                         }
+                        // check for frequency
+                        if (grid[x,y] != '.' && grid[x, y] != '#')
+                        {
+                            Console.WriteLine(grid[x, y]);
+                            frequency.Add(new Point(x, y));
+
+                        }
+                        // add the direction and if it matches then its true and add to possible antinode creations
+                        // check for inline with other frequency
                         
-                    }
-                    else if (long.TryParse(parts[x], out var number))
-                    {
-                        currentOperations.Add(number);
-                        
+                      
                     }
                     
+                    
                 }
-
-                if (currentOperations.Count > 0)
+                foreach (var p1 in frequency)
                 {
-                    operations.Add(currentOperations);
+                    foreach (var p2 in frequency)
+                    {
+                     if (p1.Equals(p2))
+                     {
+                        continue;
+                     }
+                    foreach (var (dRow, dCol) in directions)
+                    {
+                        
+                        int rowDiff = p2.X - p1.X;
+                        int colDiff = p2.Y - p1.Y;
+
+                      
+                        if (rowDiff == dRow && colDiff == dCol )
+                        {
+                            Console.WriteLine($"Points {p1} and {p2} are aligned in direction ({dRow}, {dCol})");
+                        }
+                        // detect all possible areas of antinodes.
+                    }
                 }
+               }
+                
+                
 
-            }
-            for (int i = 0; i < operations.Count; i++)
-            {
-               
-                    long sum = Sums[i];
-                    var numbers = operations[i]; // Start with the first number
-
-                Console.WriteLine($"Target: {sum}, Numbers: {string.Join(", ", numbers)}");
-
-                if (FindCombination(numbers, sum, 0, numbers[0]))
-                {
-                    Console.WriteLine($"A valid combination found for {sum}!");
-                    sumOfTrue += sum;
-                }
-                else
-                {
-                    Console.WriteLine($"No valid combination found for {sum}.");
-                }
-
-            }
-            Console.WriteLine(sumOfTrue);
-
-            Console.ReadLine();
-
-
-
-
+           
         }
-        public static bool FindCombination(List<long> numbers, long target, int index, long currentResult)
-        {
-
-            if (index == numbers.Count - 1)
-                return currentResult == target;
-
-            // Try addition
-            if (FindCombination(numbers, target, index + 1, currentResult + numbers[index + 1]))
-                return true;
-
-            // Try multiplication
-            if (FindCombination(numbers, target, index + 1, currentResult * numbers[index + 1]))
-                return true;
-
-            // Try concatenation
-            long concatenated = long.Parse(currentResult.ToString() + numbers[index + 1].ToString());
-            if (FindCombination(numbers, target, index + 1, concatenated))
-                return true;
-            return false;
-
-        }
-            
-
-        }
-
     }
+}
