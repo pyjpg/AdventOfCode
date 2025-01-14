@@ -3,30 +3,31 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 
 namespace AdventOfCode
 {
     class Program
     {
-
-        static void Main(string[] args)
+        public static int gridWidth = 0;
+        public static int gridHeight = 0;
+        public static void Main(string[] args)
         {
-            int gridWidth = 0;
-            int gridHeight = 0;
+            
             char[,] grid;
-            HashSet<Point> antinode= new HashSet<Point>();
-            HashSet<Point> frequency = new HashSet<Point>();
+            Dictionary<char, List<(int x, int y)>> antenas = new();
+            HashSet<(int x, int y)> antinode = new HashSet<(int x, int y)>();
             List<string> lines = new List<string>();
             List<(int dRow, int dCol)> directions = new List<(int dRow, int dCol)>
             {
-                (-1, 1),  
-                (-1, 0),  
-                (-1, -1), 
-                (0, 1),   
-                (0, -1),  
-                (1, -1),  
-                (1, 0),   
-                (1, 1),   
+                (-1, 1),
+                (-1, 0),
+                (-1, -1),
+                (0, 1),
+                (0, -1),
+                (1, -1),
+                (1, 0),
+                (1, 1),
             };
 
             var fileInput = "C://Users//titas//Desktop//AdventOfCode//AdventOfCode//input.txt";
@@ -36,61 +37,65 @@ namespace AdventOfCode
                 gridWidth = line.Length;
                 gridHeight++;
                 lines.Add(line);
-                Console.WriteLine(line);    
+                Console.WriteLine(line);
             }
 
-                grid = new char[gridWidth, gridHeight];
-                for (int x = 0; x < gridWidth; x++)
+            grid = new char[gridWidth, gridHeight];
+            for (int x = 0; x < gridWidth; x++)
+            {
+                for (int y = 0; y < gridHeight; y++)
                 {
-                    for (int y = 0; y < gridHeight; y++)
+                    grid[x, y] = lines[y][x];
+                    
+     
+                    var character = grid[x, y];
+                    if (character != '.')
                     {
-                        grid[x, y] = lines[y][x];
-                        if (grid[x, y] == '#')
+                        if (!antenas.ContainsKey(grid[x, y]))
                         {
-                            antinode.Add(new Point(x,y));
+                            antenas[grid[x, y]] = new List<(int x, int y)> { (x, y) };
                         }
-                        // check for frequency
-                        if (grid[x,y] != '.' && grid[x, y] != '#')
+                        else
                         {
-                            Console.WriteLine(grid[x, y]);
-                            frequency.Add(new Point(x, y));
+                            antenas[grid[x, y]].Add((x, y));
+                        }
 
-                        }
-                        // add the direction and if it matches then its true and add to possible antinode creations
-                        // check for inline with other frequency
-                        
-                      
                     }
-                    
-                    
-                }
-                foreach (var p1 in frequency)
-                {
-                    foreach (var p2 in frequency)
-                    {
-                     if (p1.Equals(p2))
-                     {
-                        continue;
-                     }
-                    foreach (var (dRow, dCol) in directions)
-                    {
-                        
-                        int rowDiff = p2.X - p1.X;
-                        int colDiff = p2.Y - p1.Y;
 
-                      
-                        if (rowDiff == dRow && colDiff == dCol )
-                        {
-                            Console.WriteLine($"Points {p1} and {p2} are aligned in direction ({dRow}, {dCol})");
-                        }
-                        // detect all possible areas of antinodes.
+                }
+
+
+            }
+            
+            foreach (var ants in antenas.Values.ToList())
+            {
+                for (int i = 0; i < ants.Count; i++)
+                {
+                    for (int j = 0; j < ants.Count; j++)
+                    {
+                        if (i == j) continue;
+
+                        var ant1 = ants[i];
+                        var ant2 = ants[j];
+
+                        antinode.Add((2 * ant1.x - ant2.x, 2 * ant1.y - ant2.y));
+                        antinode.Add((2 * ant2.x - ant1.x, 2 * ant2.y - ant1.y));
+
                     }
                 }
-               }
                 
-                
+            }
+
+            var uniqueAntiNodes = antinode.Where(pos => pos.y >= 0 && pos.y < gridHeight && pos.x >= 0 && pos.x < gridWidth);
+            Console.WriteLine(uniqueAntiNodes.Count());
+
+
+
+
+      }
+        
+    }
+
+}               
 
            
-        }
-    }
-}
