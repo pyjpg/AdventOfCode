@@ -17,6 +17,7 @@ namespace AdventOfCode
             char[,] grid;
             Dictionary<char, List<(int x, int y)>> antenas = new();
             HashSet<(int x, int y)> antinode = new HashSet<(int x, int y)>();
+            HashSet<(int x, int y)> antinode2 = new HashSet<(int x, int y)>();
             List<string> lines = new List<string>();
             List<(int dRow, int dCol)> directions = new List<(int dRow, int dCol)>
             {
@@ -73,13 +74,29 @@ namespace AdventOfCode
                 {
                     for (int j = 0; j < ants.Count; j++)
                     {
-                        if (i == j) continue;
+                            if (i == j) continue;
 
-                        var ant1 = ants[i];
-                        var ant2 = ants[j];
+                            var ant1 = ants[i];
+                            var ant2 = ants[j];
+                            
 
-                        antinode.Add((2 * ant1.x - ant2.x, 2 * ant1.y - ant2.y));
-                        antinode.Add((2 * ant2.x - ant1.x, 2 * ant2.y - ant1.y));
+                            antinode.Add((2 * ant1.x - ant2.x, 2 * ant1.y - ant2.y));
+                            antinode.Add((2 * ant2.x - ant1.x, 2 * ant2.y - ant1.y));
+
+                        var dy = ant2.y - ant1.y;
+                        var dx = ant2.x - ant1.x;
+
+                        var x = ant1.x;
+                        var y = ant1.y;
+
+                        while (y >= 0 && y < gridHeight && x >= 0 && x < gridWidth)
+                        {
+                            antinode2.Add((x, y));
+
+                            x += dx;
+                            y += dy;
+                        }
+
 
                     }
                 }
@@ -88,6 +105,7 @@ namespace AdventOfCode
 
             var uniqueAntiNodes = antinode.Where(pos => pos.y >= 0 && pos.y < gridHeight && pos.x >= 0 && pos.x < gridWidth);
             Console.WriteLine(uniqueAntiNodes.Count());
+            Console.WriteLine(antinode2.Count());
 
 
 
